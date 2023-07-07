@@ -13,8 +13,8 @@
     "headless",
     "store",
     "shop",
-    "cart"
-    "iDeal",
+    "cart",
+    "iDeal"
   ],
   "license": "MIT",
   "authors": [
