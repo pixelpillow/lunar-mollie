@@ -1,0 +1,71 @@
+{
+  "name": "pixelpillow/lunar-mollie",
+  "type": "project",
+  "description": "Mollie iDeal payment driver for Lunar.",
+  "keywords": [
+    "php",
+    "mollie",
+    "lunar-mollie",
+    "lunarphp",
+    "laravel",
+    "ecommerce",
+    "e-commerce",
+    "headless",
+    "store",
+    "shop",
+    "cart"
+    "iDeal",
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Pixelpillow",
+      "homepage": "https://pixelpillow.nl"
+    },
+    {
+      "name": "Thomas van der Westen"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "lunarphp/lunar": "^0.3",
+    "mollie/mollie-api-php": "^2.0"
+  },
+  "require-dev": {
+    "laravel/framework": "^8.0|^9.0",
+    "phpunit/phpunit": "^9.5",
+    "mockery/mockery": "^1.4.4",
+    "orchestra/testbench": "^6.0|^7.0",
+    "laravel/pint": "^1.0",
+    "laravel/laravel": "^9.5",
+    "mollie/laravel-mollie": "^2.23"
+  },
+  "autoload": {
+    "psr-4": {
+      "Pixelpillow\\LunarMollie\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Pixelpillow\\LunarMollie\\Tests\\": "tests"
+    }
+  },
+  "extra": {
+    "lunar": {
+      "name": "Mollie Payments"
+    },
+    "laravel": {
+      "providers": [
+        "Pixelpillow\\LunarMollie\\MolliePaymentsServiceProvider"
+      ],
+      "aliases": {
+        "LunarMollie": "MollieFacade"
+      }
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "test": "vendor/bin/phpunit"
+  }
+}
