@@ -13,6 +13,7 @@ use Mollie\Api\Resources\Refund;
 use Pixelpillow\LunarMollie\Exceptions\InvalidConfigurationException;
 use Pixelpillow\LunarMollie\Exceptions\InvalidRequestException;
 use Pixelpillow\LunarMollie\Exceptions\MissingMetadataException;
+use Pixelpillow\LunarMollie\Generators\BaseUrlGenerator;
 
 class MollieManager
 {
@@ -138,8 +139,8 @@ class MollieManager
                 'value' => $this->normalizeAmountToString($amount),
             ],
             'description' => (string) $transaction->id,
-            'redirectUrl' => $this->getRedirectUrl(),
-            'webhookUrl' => $this->getWebhookUrl(),
+            'redirectUrl' => $this->getRedirectUrl($cart, $transaction),
+            'webhookUrl' => $this->getWebhookUrl($cart, $transaction),
             'method' => \Mollie\Api\Types\PaymentMethod::IDEAL,
             'issuer' => $paymentIssuerId,
         ]);
@@ -195,37 +196,52 @@ class MollieManager
     /**
      * Get the redirect URL from the config
      *
+     * @param  Cart  $cart The cart to get the webhook URL for.
+     * @param  Transaction  $transaction The transaction to get the webhook URL for.
      * @return string The redirect URL
      *
      * @throws InvalidConfigurationException When the redirect URL is not set
      */
-    protected function getRedirectUrl(): string
+    public function getRedirectUrl(Cart $cart, Transaction $transaction): string
     {
-        $redirectUrl = Config::get('lunar.mollie.redirect_url');
+        $redirectUrlGeneratorClass = Config::get('lunar.mollie.redirect_url_generator');
 
-        if (! $redirectUrl) {
-            throw new InvalidConfigurationException('Mollie redirect URL not set in config');
+        if (! $redirectUrlGeneratorClass && ! class_exists($redirectUrlGeneratorClass)) {
+            throw new InvalidConfigurationException('Mollie redirect URL generator not set in config');
         }
 
-        return $redirectUrl;
+        /**
+         * @var BaseUrlGenerator $redirectUrlGenerator
+         */
+        $redirectUrlGenerator = new $redirectUrlGeneratorClass($cart, $transaction);
+
+        return $redirectUrlGenerator->generate();
+
     }
 
     /**
      * Get the webhook URL from the config
      *
+     * @param  Cart  $cart The cart to get the webhook URL for.
+     * @param  Transaction  $transaction The transaction to get the webhook URL for.
      * @return string The webhook URL
      *
      * @throws InvalidConfigurationException When the webhook URL is not set
      */
-    protected function getWebhookUrl(): string
+    public function getWebhookUrl(Cart $cart, Transaction $transaction): string
     {
-        $webhookUrl = Config::get('lunar.mollie.webhook_url');
+        $webhookUrlGeneratorClass = Config::get('lunar.mollie.webhook_url_generator');
 
-        if (! $webhookUrl) {
-            throw new InvalidConfigurationException('Mollie webhook URL not set in config');
+        if (! $webhookUrlGeneratorClass && ! class_exists($webhookUrlGeneratorClass)) {
+            throw new InvalidConfigurationException('Mollie webhook URL generator not set in config');
         }
 
-        return $webhookUrl;
+        /**
+         * @var BaseUrlGenerator $webhookUrlGenerator
+         */
+        $webhookUrlGenerator = new $webhookUrlGeneratorClass($cart, $transaction);
+
+        return $webhookUrlGenerator->generate();
     }
 
     public function getPayment($paymentId): Payment

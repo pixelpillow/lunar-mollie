@@ -14,21 +14,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Redirect URL
+    | Redirect URL after payment success generator
     |--------------------------------------------------------------------------
     |
-    | The URL to redirect to after a successful payment.
+    | This generator is used to generate the redirect URL after a successful
+    | payment. This generator is instantiated with the current Lunar Cart and
+    | Transaction.
     |
     */
-    'redirect_url' => env('MOLLIE_REDIRECT_URL'),
+    'redirect_url' => \Pixelpillow\LunarMollie\Generators\RedirectOnSuccessUrlGenerator::class,
 
     /*
     |--------------------------------------------------------------------------
-    | Webhook URL
+    | Webhook URL generator
     |--------------------------------------------------------------------------
     |
-    | The URL to send webhook events to.
+    | This generator is used to generate the webhook URL. This generator is instantiated
+    | with the current Lunar Cart and Transaction.
+    |
+    | The generator should extend the BaseWebhookGenerator class.
     |
     */
-    'webhook_url' => env('MOLLIE_WEBHOOK_URL'),
+    'webhook_url_generator' => \Pixelpillow\LunarMollie\Generators\WebhookUrlGenerator::class,
 ];

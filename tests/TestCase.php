@@ -14,6 +14,8 @@ use Mollie\Laravel\MollieLaravelHttpClientAdapter;
 use Pixelpillow\LunarMollie\Managers\MollieManager;
 use Pixelpillow\LunarMollie\MolliePaymentsServiceProvider;
 use Pixelpillow\LunarMollie\Tests\Stubs\Lunar\TestTaxDriver;
+use Pixelpillow\LunarMollie\Tests\Stubs\TestRedirectUrlGenerator;
+use Pixelpillow\LunarMollie\Tests\Stubs\TestWebhookUrlGenerator;
 use Spatie\Activitylog\ActivitylogServiceProvider;
 use Spatie\LaravelBlink\BlinkServiceProvider;
 use Spatie\MediaLibrary\MediaLibraryServiceProvider;
@@ -36,8 +38,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
         // additional setup
         Config::set('providers.users.model', User::class);
         Config::set('lunar.mollie.api_key', 'test_G3ys6guxc9Su7VJ2xctR4N4VqvGbQR');
-        Config::set('lunar.mollie.webhook_url', 'https://example.com/webhook');
-        Config::set('lunar.mollie.redirect_url', 'https://example.com/redirect');
+        Config::set('lunar.mollie.webhook_url_generator', TestWebhookUrlGenerator::class);
+        Config::set('lunar.mollie.redirect_url_generator', TestRedirectUrlGenerator::class);
 
         Config::set('taxes.driver', TestTaxDriver::class);
 
