@@ -6,7 +6,7 @@ use Lunar\Models\Cart;
 
 class SetPaymentIntentIdOnCart
 {
-    public function __invoke(null|Cart $cart, string|int $paymentIntentId): void
+    public function __invoke(?Cart $cart, string|int $paymentIntentId): void
     {
         if (! $cart) {
             return;
