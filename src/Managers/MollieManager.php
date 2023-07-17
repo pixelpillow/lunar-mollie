@@ -2,6 +2,7 @@
 
 namespace Pixelpillow\LunarMollie\Managers;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Lunar\Models\Cart;
 use Lunar\Models\Transaction;
@@ -10,6 +11,7 @@ use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\IssuerCollection;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund;
+use Pixelpillow\LunarMollie\Actions\GetPaymentIntentIdFromCart;
 use Pixelpillow\LunarMollie\Exceptions\InvalidConfigurationException;
 use Pixelpillow\LunarMollie\Exceptions\InvalidRequestException;
 use Pixelpillow\LunarMollie\Exceptions\MissingMetadataException;
@@ -72,11 +74,13 @@ class MollieManager
      */
     protected function fetchMolliePaymentFromCart(Cart $cart): ?Payment
     {
-        if (! ($cart->meta->payment_intent ?? false)) {
+        $paymentIntent = App::make(GetPaymentIntentIdFromCart::class)->execute($cart);
+
+        if (! $paymentIntent) {
             return null;
         }
 
-        return $this->fetchMolliePayment($cart->meta->payment_intent);
+        return $this->fetchMolliePayment($paymentIntent);
     }
 
     /**
