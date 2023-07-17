@@ -22,7 +22,7 @@ return [
     | Transaction.
     |
     */
-    'redirect_url' => \Pixelpillow\LunarMollie\Generators\RedirectOnSuccessUrlGenerator::class,
+    'redirect_url_generator' => \Pixelpillow\LunarMollie\Generators\RedirectOnSuccessUrlGenerator::class,
 
     /*
     |--------------------------------------------------------------------------
