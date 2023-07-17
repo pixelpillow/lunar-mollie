@@ -12,7 +12,7 @@ class SetPaymentIssuerOnCart
      * @param  null|Cart  $cart The cart to set the payment issuer on.
      * @param  string  $paymentIssuer The payment issuer to set. e.g. ideal_ABNANL2A
      */
-    public function __invoke(null|Cart $cart, string $paymentIssuer): void
+    public function __invoke(?Cart $cart, string $paymentIssuer): void
     {
         if (! $cart) {
             return;

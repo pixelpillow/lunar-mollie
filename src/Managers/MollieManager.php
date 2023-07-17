@@ -70,7 +70,7 @@ class MollieManager
      * @param  Cart  $cart The cart to fetch the payment for.
      * @return Payment|null The Mollie payment.
      */
-    protected function fetchMolliePaymentFromCart(Cart $cart): Payment|null
+    protected function fetchMolliePaymentFromCart(Cart $cart): ?Payment
     {
         if (! ($cart->meta->payment_intent ?? false)) {
             return null;
@@ -87,7 +87,7 @@ class MollieManager
      *
      * @throws InvalidRequestException When the payment could not be fetched.
      */
-    protected function fetchMolliePayment($paymentId): Payment|null
+    protected function fetchMolliePayment($paymentId): ?Payment
     {
         try {
             $payment = $this->client->payments->get($paymentId);
