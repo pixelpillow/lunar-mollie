@@ -37,7 +37,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         parent::setUp();
         // additional setup
         Config::set('providers.users.model', User::class);
-        Config::set('lunar.mollie.api_key', 'test_G3ys6guxc9Su7VJ2xctR4N4VqvGbQR');
+        Config::set('lunar.mollie.api_key', 'test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
         Config::set('lunar.mollie.webhook_url_generator', TestWebhookUrlGenerator::class);
         Config::set('lunar.mollie.redirect_url_generator', TestRedirectUrlGenerator::class);
 
