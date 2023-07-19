@@ -1,6 +1,6 @@
 <?php
 
-namespace Pixelpillow\LunarMollie;
+namespace Pixelpillow\LunarMollie\Generators;
 
 class RedirectOnSuccessUrlGenerator extends BaseUrlGenerator
 {
