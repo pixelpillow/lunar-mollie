@@ -196,16 +196,7 @@ class MolliePaymentType extends AbstractPayment
         array $data = []
     ): void {
         $this->order->transactions()->create([
-            'success' => ! in_array(
-                $payment->status,
-                [
-                    PaymentStatus::STATUS_OPEN,
-                    PaymentStatus::STATUS_FAILED,
-                    PaymentStatus::STATUS_CANCELED,
-                    PaymentStatus::STATUS_EXPIRED,
-                    PaymentStatus::STATUS_PENDING,
-                ]
-            ),
+            'success' => $this->isSuccessful($payment),
             'type' => $type,
             'driver' => 'molie',
             'amount' => $this->mollie->normalizeAmountToInteger($payment->amount),
@@ -216,5 +207,24 @@ class MolliePaymentType extends AbstractPayment
             'card_type' => 'ideal',
             ...$data,
         ]);
+    }
+
+    /**
+     * Check if is successful.
+     *
+     * @param  Payment  $payment The Mollie payment
+     */
+    public function isSuccessful(Payment $payment): bool
+    {
+        $notSuccessful = [
+            PaymentStatus::STATUS_OPEN,
+            PaymentStatus::STATUS_FAILED,
+            PaymentStatus::STATUS_CANCELED,
+            PaymentStatus::STATUS_EXPIRED,
+            PaymentStatus::STATUS_PENDING,
+        ];
+
+        return ! in_array($payment->status, $notSuccessful);
+
     }
 }

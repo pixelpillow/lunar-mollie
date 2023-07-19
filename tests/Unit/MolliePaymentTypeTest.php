@@ -88,4 +88,21 @@ class MolliePaymentTypeTest extends TestCase
             'type' => 'capture',
         ]);
     }
+
+    public function testsPaymentIsSuccessful()
+    {
+        $mollieMockPayment = new Payment($this->mollieApiClient);
+
+        $mollieMockPayment->status = PaymentStatus::STATUS_OPEN;
+
+        $paymentIsSuccessful = (new MolliePaymentType)->isSuccessful($mollieMockPayment);
+
+        $this->assertFalse($paymentIsSuccessful);
+
+        $mollieMockPayment->status = PaymentStatus::STATUS_PAID;
+
+        $paymentIsSuccessful = (new MolliePaymentType)->isSuccessful($mollieMockPayment);
+
+        $this->assertTrue($paymentIsSuccessful);
+    }
 }
