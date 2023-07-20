@@ -2,15 +2,16 @@
 
 namespace Pixelpillow\LunarMollie\Tests\Utils;
 
-use Lunar\DataTypes\Price;
+use Lunar\Actions\Carts\AddOrUpdatePurchasable;
+use Lunar\DataTypes\Price as PriceDataType;
 use Lunar\DataTypes\ShippingOption;
 use Lunar\Facades\ShippingManifest;
 use Lunar\Models\Cart;
 use Lunar\Models\CartAddress;
-use Lunar\Models\CartLine;
 use Lunar\Models\Country;
 use Lunar\Models\Currency;
 use Lunar\Models\Language;
+use Lunar\Models\Price;
 use Lunar\Models\ProductVariant;
 use Lunar\Models\TaxClass;
 
@@ -42,7 +43,7 @@ class CartBuilder
                 name: 'Basic Delivery',
                 description: 'Basic Delivery',
                 identifier: 'BASDEL',
-                price: new Price(500, $cart->currency, 1),
+                price: new PriceDataType(500, $cart->currency, 1),
                 taxClass: $taxClass
             )
         );
@@ -58,16 +59,19 @@ class CartBuilder
             'type' => 'billing',
         ]);
 
-        ProductVariant::factory()->create()->each(function ($variant) use ($currency) {
-            $variant->prices()->create([
-                'price' => 1.99,
-                'currency_id' => $currency->id,
-            ]);
-        });
+        $purchasable = ProductVariant::factory()->create();
 
-        CartLine::factory()->create([
-            'cart_id' => $cart->id,
+        Price::factory()->create([
+            'price' => 100,
+            'tier' => 1,
+            'currency_id' => $currency->id,
+            'priceable_type' => get_class($purchasable),
+            'priceable_id' => $purchasable->id,
         ]);
+
+        $action = new AddOrUpdatePurchasable;
+
+        $action->execute($cart, $purchasable, 1);
 
         return $cart;
     }

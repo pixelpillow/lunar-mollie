@@ -15,7 +15,7 @@ composer require pixelpillow/laravel-mollie
 2. Publish the config file:
 
 ```bash
-php artisan vendor:publish --provider="Pixelpillow\Mollie\MollieServiceProvider"
+php artisan vendor:publish --provider="Pixelpillow\LunarMollie\MolliePaymentsServiceProvider"
 ```
 
 3. Add your Mollie API key to your `.env` file:

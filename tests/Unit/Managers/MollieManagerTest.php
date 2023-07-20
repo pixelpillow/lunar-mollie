@@ -57,6 +57,10 @@ class MollieManagerTest extends TestCase
 
         $payment = new Payment($this->mollieApiClient);
         $payment->id = uniqid('tr_');
+        $payment->amount = [
+            'value' => '100.00',
+            'currency' => 'EUR',
+        ];
 
         Http::fake([
             'https://api.mollie.com/*' => Http::response(json_encode($payment)),

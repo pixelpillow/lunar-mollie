@@ -59,11 +59,11 @@ class MollieManager
      */
     protected function getPaymentIssuer(Cart $cart): ?string
     {
-        if (! isset($cart->meta->payment_issuer)) {
+        if (! isset($cart->meta['payment_issuer'])) {
             throw new MissingMetadataException('Payment issuer is missing.');
         }
 
-        return $cart->meta->payment_issuer;
+        return $cart->meta['payment_issuer'];
     }
 
     /**

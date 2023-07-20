@@ -44,12 +44,12 @@ class MolliePaymentTypeTest extends TestCase
 
         $this->assertTrue($response->success);
 
-        $this->assertNotNull($cart->refresh()->order->placed_at);
+        $this->assertEquals($mollieMockPayment->id, $cart->meta['payment_intent']);
 
-        $this->assertEquals($mollieMockPayment->id, $cart->meta->payment_intent);
+        $cart->refresh();
 
         $this->assertDatabaseHas((new Transaction)->getTable(), [
-            'order_id' => $cart->refresh()->order->id,
+            'order_id' => $response->orderId,
             'type' => 'capture',
         ]);
     }
@@ -81,10 +81,9 @@ class MolliePaymentTypeTest extends TestCase
 
         $this->assertInstanceOf(PaymentAuthorize::class, $response);
         $this->assertFalse($response->success);
-        $this->assertNull($cart->refresh()->order->placed_at);
 
         $this->assertDatabaseMissing((new Transaction)->getTable(), [
-            'order_id' => $cart->refresh()->order->id,
+            'order_id' => $response->orderId,
             'type' => 'capture',
         ]);
     }

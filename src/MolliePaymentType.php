@@ -56,6 +56,7 @@ class MolliePaymentType extends AbstractPayment
             return new PaymentAuthorize(
                 success: false,
                 message: 'This order has already been placed',
+                orderId: $this->order->id
             );
         }
 
@@ -187,7 +188,7 @@ class MolliePaymentType extends AbstractPayment
             );
         });
 
-        return new PaymentAuthorize(success: true);
+        return new PaymentAuthorize(success: true, message: 'Payment approved', orderId: $this->order->id);
     }
 
     protected function createTransaction(
