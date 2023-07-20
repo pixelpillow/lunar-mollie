@@ -10,6 +10,7 @@ use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund;
 use Pixelpillow\LunarMollie\Actions\SetPaymentIssuerOnCart;
+use Pixelpillow\LunarMollie\Actions\SetPaymentMethodOnCart;
 use Pixelpillow\LunarMollie\Exceptions\MissingMetadataException;
 use Pixelpillow\LunarMollie\Managers\MollieManager;
 use Pixelpillow\LunarMollie\Tests\TestCase;
@@ -50,10 +51,16 @@ class MollieManagerTest extends TestCase
         $cart = CartBuilder::build();
 
         // Set the payment issuer to ABN AMRO
-        $payment_issuer = 'ideal_ABNANL2A';
+        $paymentIssuer = 'ideal_ABNANL2A';
+
+        // Set the payment method to ideal
+        $paymentMethod = 'ideal';
 
         // Set the payment issuer on the cart
-        App::make(SetPaymentIssuerOnCart::class)($cart, $payment_issuer);
+        App::make(SetPaymentIssuerOnCart::class)($cart, $paymentIssuer);
+
+        // Set the payment method on the cart
+        App::make(SetPaymentMethodOnCart::class)($cart, $paymentMethod);
 
         $payment = new Payment($this->mollieApiClient);
         $payment->id = uniqid('tr_');

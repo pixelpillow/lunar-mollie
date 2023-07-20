@@ -1,6 +1,6 @@
 <?php
 
-namespace Pixelpillow\LunarMollie\Tests\Unit\Managers;
+namespace Pixelpillow\LunarMollie\Tests\Unit\Actions;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;

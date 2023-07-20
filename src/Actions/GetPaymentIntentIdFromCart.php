@@ -6,7 +6,10 @@ use Lunar\Models\Cart;
 
 class GetPaymentIntentIdFromCart
 {
-    public function execute(Cart $cart): ?string
+    /**
+     * Get the payment intent id from the cart
+     */
+    public function __invoke(Cart $cart): ?string
     {
         if (! $cart) {
             return null;
