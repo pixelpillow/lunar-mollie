@@ -9,6 +9,7 @@ use Lunar\Models\Transaction;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\IssuerCollection;
+use Mollie\Api\Resources\MethodCollection;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund;
 use Pixelpillow\LunarMollie\Actions\GetPaymentIntentIdFromCart;
@@ -190,6 +191,28 @@ class MollieManager
             $reponse = $this->client->methods->get(\Mollie\Api\Types\PaymentMethod::IDEAL, ['include' => 'issuers']);
 
             return $reponse->issuers();
+        } catch (ApiException $e) {
+            report($e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a list of Mollie payment methods
+     *
+     * @param  string|null  $sequenceType
+     * @return \Mollie\Api\Resources\BaseCollection|\Mollie\Api\Resources\MethodCollection|null
+     *
+     * @see https://docs.mollie.com/reference/v2/methods-api/list-methods
+     */
+    public function getMolliePaymentMethods(
+        array $parameters = []
+    ): ?MethodCollection {
+        try {
+            $reponse = $this->client->methods->allActive(empty($parameters) ? $parameters : null);
+
+            return $reponse;
         } catch (ApiException $e) {
             report($e);
         }
