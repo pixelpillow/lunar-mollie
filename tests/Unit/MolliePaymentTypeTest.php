@@ -44,7 +44,9 @@ class MolliePaymentTypeTest extends TestCase
 
         $this->assertTrue($response->success);
 
-        $this->assertEquals($mollieMockPayment->id, $cart->meta['payment_intent']);
+        $meta = (array) $cart->meta;
+
+        $this->assertEquals($mollieMockPayment->id, $meta['payment_intent']);
 
         $cart->refresh();
 
