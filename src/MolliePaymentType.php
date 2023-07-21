@@ -188,7 +188,7 @@ class MolliePaymentType extends AbstractPayment
             );
         });
 
-        return new PaymentAuthorize(success: true, message: 'Payment approved', orderId: $this->order->id);
+        return new PaymentAuthorize(true, 'Payment approved', $this->order->id);
     }
 
     protected function createTransaction(

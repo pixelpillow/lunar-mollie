@@ -24,6 +24,8 @@ class SetPaymentIntentIdOnCartTest extends TestCase
 
         $cart->refresh();
 
-        $this->assertEquals($paymentIntentId, $cart->meta['payment_intent']);
+        $meta = (array) $cart->meta;
+
+        $this->assertEquals($paymentIntentId, $meta['payment_intent']);
     }
 }

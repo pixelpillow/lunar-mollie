@@ -25,7 +25,9 @@ class SetPaymentIssuerOnCartTest extends TestCase
 
         $cart->refresh();
 
-        $this->assertEquals($payment_issuer, $cart->meta['payment_issuer']);
+        $meta = (array) $cart->meta;
+
+        $this->assertEquals($payment_issuer, $meta['payment_issuer']);
 
     }
 }
