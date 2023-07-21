@@ -197,7 +197,7 @@ class MollieManager
     /**
      * Get a list of Mollie payment methods
      *
-     * @param  string|null  $sequenceType
+     * @param  array  $parameters The parameters to filter the payment methods on.
      * @return \Mollie\Api\Resources\BaseCollection|\Mollie\Api\Resources\MethodCollection|null
      *
      * @see https://docs.mollie.com/reference/v2/methods-api/list-methods
