@@ -15,7 +15,7 @@ class GetPaymentIntentIdFromCart
             return null;
         }
 
-        $meta = (array) $cart->meta;
+        $meta = $cart->meta->toArray();
 
         return $meta['payment_intent'] ?? null;
     }

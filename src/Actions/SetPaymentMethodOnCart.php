@@ -14,7 +14,7 @@ class SetPaymentMethodOnCart
      */
     public function __invoke(Cart $cart, string $paymentMethode): void
     {
-        $meta = (array) $cart->meta;
+        $meta = $cart->meta->toArray();
         $meta['payment_method'] = $paymentMethode;
 
         $cart->meta = $meta;

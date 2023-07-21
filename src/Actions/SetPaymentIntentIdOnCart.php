@@ -12,7 +12,7 @@ class SetPaymentIntentIdOnCart
             return;
         }
 
-        $meta = (array) $cart->meta;
+        $meta = $cart->meta->toArray();
         $meta['payment_intent'] = $paymentIntentId;
 
         $cart->meta = $meta;
