@@ -16,10 +16,12 @@ class GetPaymentIssuerFromCart
             return null;
         }
 
-        if (! isset($cart->meta['payment_issuer'])) {
+        $meta = (object) $cart->meta;
+
+        if (! isset($meta->payment_issuer)) {
             throw new MissingMetadataException('Payment issuer is missing.');
         }
 
-        return $cart->meta['payment_issuer'];
+        return $meta->payment_issuer;
     }
 }

@@ -33,7 +33,7 @@ class MollieManager
 
     public function __construct($httpClient = null)
     {
-        $apiKey = Config::get('lunar.mollie.api_key', null);
+        $apiKey = Config::get('lunar.mollie.api_key');
 
         if (! $apiKey) {
             throw new \Exception('Mollie API key not set');

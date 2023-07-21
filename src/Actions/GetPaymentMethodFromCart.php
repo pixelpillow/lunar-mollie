@@ -16,10 +16,12 @@ class GetPaymentMethodFromCart
             return null;
         }
 
-        if (! isset($cart->meta['payment_method'])) {
+        $meta = (object) $cart->meta;
+
+        if (! isset($meta->payment_method)) {
             throw new MissingMetadataException('Payment payment_method is missing.');
         }
 
-        return $cart->meta['payment_method'];
+        return $meta->payment_method;
     }
 }

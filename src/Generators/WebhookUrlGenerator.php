@@ -10,5 +10,6 @@ class WebhookUrlGenerator extends BaseUrlGenerator
     public function generate(): string
     {
         // TODO: Implement generate() method.
+        return '';
     }
 }
