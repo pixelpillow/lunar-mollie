@@ -14,7 +14,7 @@ class SetPaymentIssuerOnCart
      */
     public function __invoke(Cart $cart, string $paymentIssuer): void
     {
-        $meta = $cart->meta->toArray();
+        $meta = (array) $cart->meta;
 
         $meta['payment_issuer'] = $paymentIssuer;
 

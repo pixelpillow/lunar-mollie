@@ -16,7 +16,7 @@ class GetPaymentMethodFromCart
             return null;
         }
 
-        $meta = $cart->meta->toArray();
+        $meta = (array) $cart->meta;
 
         if (! isset($meta['payment_method'])) {
             throw new MissingMetadataException('Payment payment_method is missing.');
