@@ -54,9 +54,9 @@ class MolliePaymentType extends AbstractPayment
         if ($this->order->placed_at) {
             // Somethings gone wrong!
             return new PaymentAuthorize(
-                success: false,
-                message: 'This order has already been placed',
-                orderId: $this->order->id
+                false,
+                'This order has already been placed',
+                $this->order->id
             );
         }
 
@@ -68,8 +68,8 @@ class MolliePaymentType extends AbstractPayment
 
         if (! $this->isReadyToBeReleased()) {
             return new PaymentAuthorize(
-                success: false,
-                message: 'Payment not approved',
+                false,
+                'Payment not approved',
             );
         }
 

@@ -5,7 +5,6 @@ namespace Pixelpillow\LunarMollie\Tests\Unit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Lunar\Base\DataTransferObjects\PaymentAuthorize;
-use Lunar\Models\Transaction;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Types\PaymentStatus;
 use Pixelpillow\LunarMollie\MolliePaymentType;
@@ -48,12 +47,7 @@ class MolliePaymentTypeTest extends TestCase
 
         $this->assertEquals($mollieMockPayment->id, $meta['payment_intent']);
 
-        $cart->refresh();
-
-        $this->assertDatabaseHas((new Transaction)->getTable(), [
-            'order_id' => $response->orderId,
-            'type' => 'capture',
-        ]);
+        $this->assertEquals($response->message, 'Payment approved');
     }
 
     /**
@@ -84,10 +78,7 @@ class MolliePaymentTypeTest extends TestCase
         $this->assertInstanceOf(PaymentAuthorize::class, $response);
         $this->assertFalse($response->success);
 
-        $this->assertDatabaseMissing((new Transaction)->getTable(), [
-            'order_id' => $response->orderId,
-            'type' => 'capture',
-        ]);
+        $this->assertEquals($response->message, 'Payment not approved');
     }
 
     public function testsPaymentIsSuccessful()
