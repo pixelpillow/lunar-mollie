@@ -10,6 +10,7 @@ use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund;
 use Pixelpillow\LunarMollie\Actions\SetPaymentIssuerOnCart;
+use Pixelpillow\LunarMollie\Actions\SetPaymentMethodOnCart;
 use Pixelpillow\LunarMollie\Exceptions\MissingMetadataException;
 use Pixelpillow\LunarMollie\Managers\MollieManager;
 use Pixelpillow\LunarMollie\Tests\TestCase;
@@ -41,7 +42,30 @@ class MollieManagerTest extends TestCase
         $transaction = new Transaction();
         $transaction->id = uniqid();
 
-        $this->mollieManager->createMolliePayment($cart->calculate(), $transaction, 100);
+        $this->mollieManager->createMolliePayment(
+            $cart->calculate(),
+            $transaction,
+            100,
+            'bancontact',
+            null);
+    }
+
+    public function testIfWrongPaymentMethodAnExceptionIsThrown()
+    {
+        $this->expectException(MissingMetadataException::class);
+        $this->expectExceptionMessage('Payment method xxxxx is not a valid Mollie payment method');
+
+        // Create a cart
+        $cart = CartBuilder::build();
+        $transaction = new Transaction();
+        $transaction->id = uniqid();
+
+        $this->mollieManager->createMolliePayment(
+            $cart->calculate(),
+            $transaction,
+            100,
+            'xxxxx', );
+
     }
 
     public function testPaymentIsCreated()
@@ -50,10 +74,16 @@ class MollieManagerTest extends TestCase
         $cart = CartBuilder::build();
 
         // Set the payment issuer to ABN AMRO
-        $payment_issuer = 'ideal_ABNANL2A';
+        $paymentIssuer = 'ideal_ABNANL2A';
+
+        // Set the payment method to ideal
+        $paymentMethod = 'ideal';
 
         // Set the payment issuer on the cart
-        App::make(SetPaymentIssuerOnCart::class)($cart, $payment_issuer);
+        App::make(SetPaymentIssuerOnCart::class)($cart, $paymentIssuer);
+
+        // Set the payment method on the cart
+        App::make(SetPaymentMethodOnCart::class)($cart, $paymentMethod);
 
         $payment = new Payment($this->mollieApiClient);
         $payment->id = uniqid('tr_');
@@ -72,7 +102,9 @@ class MollieManagerTest extends TestCase
         $response = $this->mollieManager->createMolliePayment(
             $cart->calculate(),
             $transaction,
-            100
+            100,
+            'ideal',
+            'ideal_ABNANL2A'
         );
 
         $this->assertEquals(
@@ -115,7 +147,9 @@ class MollieManagerTest extends TestCase
         $response = $this->mollieManager->createMolliePayment(
             $cart->calculate(),
             $transaction,
-            100
+            100,
+            'ideal',
+            'ideal_ABNANL2A'
         );
 
         Http::fake([
@@ -185,6 +219,143 @@ class MollieManagerTest extends TestCase
             $response[0]->image->size1x,
             'https://www.mollie.com/external/icons/payment-methods/ideal.png'
         );
+    }
+
+    public function testCanListPaymentMethods()
+    {
+        $paymentMethods = [
+            'count' => 13,
+            '_embedded' => [
+                'methods' => [
+                    [
+                        'resource' => 'method',
+                        'id' => 'ideal',
+                        'description' => 'iDEAL',
+                        'minimumAmount' => [
+                            'value' => '0.01',
+                            'currency' => 'EUR',
+                        ],
+                        'maximumAmount' => [
+                            'value' => '50000.00',
+                            'currency' => 'EUR',
+                        ],
+                        'image' => [
+                            'size1x' => 'https://mollie.com/external/icons/payment-methods/ideal.png',
+                            'size2x' => 'https://mollie.com/external/icons/payment-methods/ideal%402x.png',
+                            'svg' => 'https://mollie.com/external/icons/payment-methods/ideal.svg',
+                        ],
+                        'status' => 'activated',
+                        'pricing' => [
+                            [
+                                'description' => 'Netherlands',
+                                'fixed' => [
+                                    'value' => '0.29',
+                                    'currency' => 'EUR',
+                                ],
+                                'variable' => '0',
+                            ],
+                        ],
+                        '_links' => [
+                            'self' => [
+                                'href' => 'https://api.mollie.com/v2/methods/ideal',
+                                'type' => 'application/hal+json',
+                            ],
+                        ],
+                    ],
+                    [
+                        'resource' => 'method',
+                        'id' => 'creditcard',
+                        'description' => 'Credit card',
+                        'minimumAmount' => [
+                            'value' => '0.01',
+                            'currency' => 'EUR',
+                        ],
+                        'maximumAmount' => [
+                            'value' => '2000.00',
+                            'currency' => 'EUR',
+                        ],
+                        'image' => [
+                            'size1x' => 'https://mollie.com/external/icons/payment-methods/creditcard.png',
+                            'size2x' => 'https://mollie.com/external/icons/payment-methods/creditcard%402x.png',
+                            'svg' => 'https://mollie.com/external/icons/payment-methods/creditcard.svg',
+                        ],
+                        'status' => 'activated',
+                        'pricing' => [
+                            [
+                                'description' => 'Commercial & non-European cards',
+                                'fixed' => [
+                                    'value' => '0.25',
+                                    'currency' => 'EUR',
+                                ],
+                                'variable' => '2.8',
+                                'feeRegion' => 'other',
+                            ],
+                            [
+                                'description' => 'European cards',
+                                'fixed' => [
+                                    'value' => '0.25',
+                                    'currency' => 'EUR',
+                                ],
+                                'variable' => '1.8',
+                                'feeRegion' => 'eu-cards',
+                            ],
+                            [
+                                'description' => 'American Express',
+                                'fixed' => [
+                                    'value' => '0.25',
+                                    'currency' => 'EUR',
+                                ],
+                                'variable' => '2.8',
+                                'feeRegion' => 'amex',
+                            ],
+                        ],
+                        '_links' => [
+                            'self' => [
+                                'href' => 'https://api.mollie.com/v2/methods/creditcard',
+                                'type' => 'application/hal+json',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            '_links' => [
+                'self' => [
+                    'href' => 'https://api.mollie.com/v2/methods',
+                    'type' => 'application/hal+json',
+                ],
+                'documentation' => [
+                    'href' => 'https://docs.mollie.com/reference/v2/methods-api/list-methods',
+                    'type' => 'text/html',
+                ],
+            ],
+        ];
+
+        Http::fake([
+            'https://api.mollie.com/*' => Http::response(json_encode($paymentMethods)),
+        ]);
+
+        $response = $this->mollieManager->getMolliePaymentMethods();
+
+        $this->assertEquals(
+            $response->count(),
+            2
+        );
+
+        $this->assertEquals(
+            $response[0]->id,
+            'ideal'
+        );
+
+        $this->assertEquals(
+            $response[0]->description,
+            'iDEAL'
+        );
+
+        $this->assertEquals(
+            $response[0]->minimumAmount->value,
+            '0.01'
+        );
+
     }
 
     /**

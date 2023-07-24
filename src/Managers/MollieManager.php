@@ -9,9 +9,15 @@ use Lunar\Models\Transaction;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\IssuerCollection;
+use Mollie\Api\Resources\MethodCollection;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund;
+use Mollie\Api\Types\PaymentMethod;
 use Pixelpillow\LunarMollie\Actions\GetPaymentIntentIdFromCart;
+use Pixelpillow\LunarMollie\Actions\GetPaymentIssuerFromCart;
+use Pixelpillow\LunarMollie\Actions\GetPaymentMethodFromCart;
+use Pixelpillow\LunarMollie\Actions\SetPaymentIssuerOnCart;
+use Pixelpillow\LunarMollie\Actions\SetPaymentMethodOnCart;
 use Pixelpillow\LunarMollie\Exceptions\InvalidConfigurationException;
 use Pixelpillow\LunarMollie\Exceptions\InvalidRequestException;
 use Pixelpillow\LunarMollie\Exceptions\MissingMetadataException;
@@ -29,7 +35,7 @@ class MollieManager
 
     public function __construct($httpClient = null)
     {
-        $apiKey = Config::get('lunar.mollie.api_key', null);
+        $apiKey = Config::get('lunar.mollie.api_key');
 
         if (! $apiKey) {
             throw new \Exception('Mollie API key not set');
@@ -50,23 +56,6 @@ class MollieManager
     }
 
     /**
-     * Get selected payment issuer from the cart meta
-     *
-     * @param  Cart  $cart The cart to get the payment issuer from.
-     * @return string|null The payment issuer eg. "ideal_INGBNL2A"
-     *
-     * @throws MissingMetadataException When the payment issuer is missing.
-     */
-    protected function getPaymentIssuer(Cart $cart): ?string
-    {
-        if (! isset($cart->meta['payment_issuer'])) {
-            throw new MissingMetadataException('Payment issuer is missing.');
-        }
-
-        return $cart->meta['payment_issuer'];
-    }
-
-    /**
      * Fetch a payment from the Mollie API.
      *
      * @param  Cart  $cart The cart to fetch the payment for.
@@ -74,7 +63,7 @@ class MollieManager
      */
     protected function fetchMolliePaymentFromCart(Cart $cart): ?Payment
     {
-        $paymentIntent = App::make(GetPaymentIntentIdFromCart::class)->execute($cart);
+        $paymentIntent = App::make(GetPaymentIntentIdFromCart::class)($cart);
 
         if (! $paymentIntent) {
             return null;
@@ -127,15 +116,28 @@ class MollieManager
      * @param  Cart  $cart The cart to create the payment for.
      * @param  Transaction  $transaction The transaction to create the payment for.
      * @param  int  $amount The amount to create the payment for.
+     * @param  string  $method The payment method to create the payment for.
+     * @param  string|null  $paymentIssuer The payment issuer to create the a ideal payment for. This is only used when the payment method is ideal.
      * @return Payment The Mollie payment.
      */
     public function createMolliePayment(
         Cart $cart,
         Transaction $transaction,
         int $amount,
+        string $method,
+        string $paymentIssuer = null,
     ): Payment {
+        App::make(SetPaymentMethodOnCart::class)($cart, $method);
 
-        $paymentIssuerId = $this->getPaymentIssuer($cart);
+        if ($paymentIssuer) {
+            App::make(SetPaymentIssuerOnCart::class)($cart, $paymentIssuer);
+        }
+
+        $paymentIssuer = App::make(GetPaymentIssuerFromCart::class)($cart);
+
+        if ($method === PaymentMethod::IDEAL && ! $paymentIssuer) {
+            throw new MissingMetadataException('When the payment method is ideal, the payment issuer should be set');
+        }
 
         return $this->client->payments->create([
             'amount' => [
@@ -145,8 +147,8 @@ class MollieManager
             'description' => (string) $transaction->id,
             'redirectUrl' => $this->getRedirectUrl($cart, $transaction),
             'webhookUrl' => $this->getWebhookUrl($cart, $transaction),
-            'method' => \Mollie\Api\Types\PaymentMethod::IDEAL,
-            'issuer' => $paymentIssuerId,
+            'method' => App::make(GetPaymentMethodFromCart::class)($cart),
+            'issuer' => $paymentIssuer,
         ]);
     }
 
@@ -190,6 +192,28 @@ class MollieManager
             $reponse = $this->client->methods->get(\Mollie\Api\Types\PaymentMethod::IDEAL, ['include' => 'issuers']);
 
             return $reponse->issuers();
+        } catch (ApiException $e) {
+            report($e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a list of Mollie payment methods
+     *
+     * @param  array  $parameters The parameters to filter the payment methods on.
+     * @return \Mollie\Api\Resources\BaseCollection|\Mollie\Api\Resources\MethodCollection|null
+     *
+     * @see https://docs.mollie.com/reference/v2/methods-api/list-methods
+     */
+    public function getMolliePaymentMethods(
+        array $parameters = []
+    ): ?MethodCollection {
+        try {
+            $reponse = $this->client->methods->allActive(empty($parameters) ? $parameters : null);
+
+            return $reponse;
         } catch (ApiException $e) {
             report($e);
         }

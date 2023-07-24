@@ -1,6 +1,6 @@
 <?php
 
-namespace Pixelpillow\LunarMollie\Tests\Unit\Managers;
+namespace Pixelpillow\LunarMollie\Tests\Unit\Actions;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
@@ -25,7 +25,9 @@ class SetPaymentIssuerOnCartTest extends TestCase
 
         $cart->refresh();
 
-        $this->assertEquals($payment_issuer, $cart->meta['payment_issuer']);
+        $meta = (array) $cart->meta;
+
+        $this->assertEquals($payment_issuer, $meta['payment_issuer']);
 
     }
 }

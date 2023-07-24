@@ -2,13 +2,10 @@
 
 namespace Pixelpillow\LunarMollie\Generators;
 
-class RedirectOnSuccessUrlGenerator extends BaseUrlGenerator
+abstract class RedirectOnSuccessUrlGenerator extends BaseUrlGenerator
 {
     /**
      * Generate the webhook URL.
      */
-    public function generate(): string
-    {
-        // TODO: Implement generate() method.
-    }
+    abstract public function generate(): string;
 }

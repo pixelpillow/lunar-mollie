@@ -4,15 +4,16 @@ namespace Pixelpillow\LunarMollie\Tests\Unit\Actions;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use Pixelpillow\LunarMollie\Actions\GetPaymentIntentIdFromCart;
 use Pixelpillow\LunarMollie\Actions\SetPaymentIntentIdOnCart;
 use Pixelpillow\LunarMollie\Tests\TestCase;
 use Pixelpillow\LunarMollie\Tests\Utils\CartBuilder;
 
-class SetPaymentIntentIdOnCartTest extends TestCase
+class GetPaymentIntentIdFromCartTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testSetPaymentIntentIdOnCart()
+    public function testGetPaymentIntentIdFromCart()
     {
         // Create a cart
         $cart = CartBuilder::build();
@@ -24,8 +25,8 @@ class SetPaymentIntentIdOnCartTest extends TestCase
 
         $cart->refresh();
 
-        $meta = (array) $cart->meta;
+        $paymentIntentIdFromCart = App::make(GetPaymentIntentIdFromCart::class)($cart);
 
-        $this->assertEquals($paymentIntentId, $meta['payment_intent']);
+        $this->assertEquals($paymentIntentId, $paymentIntentIdFromCart);
     }
 }
