@@ -92,8 +92,13 @@ class MollieManagerTest extends TestCase
             'currency' => 'EUR',
         ];
 
+        $responseJsonRaw = file_get_contents(__DIR__.'/../../Stubs/MollieResponses/PaymentSuccessResponse.json');
+        $responseJson = json_decode($responseJsonRaw, true);
+
+        $responseJson['id'] = $payment->id;
+
         Http::fake([
-            'https://api.mollie.com/*' => Http::response(json_encode($payment)),
+            'https://api.mollie.com/*' => Http::response($responseJson),
         ]);
 
         $transaction = new Transaction();
@@ -107,9 +112,16 @@ class MollieManagerTest extends TestCase
             'ideal_ABNANL2A'
         );
 
+        $checkoutUrl = $response->getCheckoutUrl();
+
         $this->assertEquals(
             $response->id,
             $payment->id
+        );
+
+        $this->assertEquals(
+            $response->_links->checkout->href,
+            $checkoutUrl
         );
     }
 
