@@ -12,6 +12,7 @@ use Mollie\Api\Resources\IssuerCollection;
 use Mollie\Api\Resources\MethodCollection;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund;
+use Mollie\Api\Types\PaymentMethod;
 use Pixelpillow\LunarMollie\Actions\GetPaymentIntentIdFromCart;
 use Pixelpillow\LunarMollie\Actions\GetPaymentIssuerFromCart;
 use Pixelpillow\LunarMollie\Actions\GetPaymentMethodFromCart;
@@ -19,6 +20,7 @@ use Pixelpillow\LunarMollie\Actions\SetPaymentIssuerOnCart;
 use Pixelpillow\LunarMollie\Actions\SetPaymentMethodOnCart;
 use Pixelpillow\LunarMollie\Exceptions\InvalidConfigurationException;
 use Pixelpillow\LunarMollie\Exceptions\InvalidRequestException;
+use Pixelpillow\LunarMollie\Exceptions\MissingMetadataException;
 use Pixelpillow\LunarMollie\Generators\BaseUrlGenerator;
 
 class MollieManager
@@ -114,24 +116,27 @@ class MollieManager
      * @param  Cart  $cart The cart to create the payment for.
      * @param  Transaction  $transaction The transaction to create the payment for.
      * @param  int  $amount The amount to create the payment for.
-     * @param  string|null  $method The payment method to create the payment for.
-     * @param  string|null  $paymentIssuer The payment issuer to create the payment for.
+     * @param  string  $method The payment method to create the payment for.
+     * @param  string|null  $paymentIssuer The payment issuer to create the a ideal payment for. This is only used when the payment method is ideal.
      * @return Payment The Mollie payment.
      */
     public function createMolliePayment(
         Cart $cart,
         Transaction $transaction,
         int $amount,
-        ?string $method = 'ideal',
+        string $method,
         string $paymentIssuer = null,
     ): Payment {
-
-        if ($method) {
-            App::make(SetPaymentMethodOnCart::class)($cart, $method);
-        }
+        App::make(SetPaymentMethodOnCart::class)($cart, $method);
 
         if ($paymentIssuer) {
             App::make(SetPaymentIssuerOnCart::class)($cart, $paymentIssuer);
+        }
+
+        $paymentIssuer = App::make(GetPaymentIssuerFromCart::class)($cart);
+
+        if ($method === PaymentMethod::IDEAL && ! $paymentIssuer) {
+            throw new MissingMetadataException('When the payment method is ideal, the payment issuer should be set');
         }
 
         return $this->client->payments->create([
@@ -143,7 +148,7 @@ class MollieManager
             'redirectUrl' => $this->getRedirectUrl($cart, $transaction),
             'webhookUrl' => $this->getWebhookUrl($cart, $transaction),
             'method' => App::make(GetPaymentMethodFromCart::class)($cart),
-            'issuer' => App::make(GetPaymentIssuerFromCart::class)($cart),
+            'issuer' => $paymentIssuer,
         ]);
     }
 

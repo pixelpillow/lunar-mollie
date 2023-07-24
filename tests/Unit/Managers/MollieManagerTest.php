@@ -42,7 +42,30 @@ class MollieManagerTest extends TestCase
         $transaction = new Transaction();
         $transaction->id = uniqid();
 
-        $this->mollieManager->createMolliePayment($cart->calculate(), $transaction, 100);
+        $this->mollieManager->createMolliePayment(
+            $cart->calculate(),
+            $transaction,
+            100,
+            'bancontact',
+            null);
+    }
+
+    public function testIfWrongPaymentMethodAnExceptionIsThrown()
+    {
+        $this->expectException(MissingMetadataException::class);
+        $this->expectExceptionMessage('Payment method xxxxx is not a valid Mollie payment method');
+
+        // Create a cart
+        $cart = CartBuilder::build();
+        $transaction = new Transaction();
+        $transaction->id = uniqid();
+
+        $this->mollieManager->createMolliePayment(
+            $cart->calculate(),
+            $transaction,
+            100,
+            'xxxxx', );
+
     }
 
     public function testPaymentIsCreated()
@@ -79,7 +102,9 @@ class MollieManagerTest extends TestCase
         $response = $this->mollieManager->createMolliePayment(
             $cart->calculate(),
             $transaction,
-            100
+            100,
+            'ideal',
+            'ideal_ABNANL2A'
         );
 
         $this->assertEquals(
@@ -122,7 +147,9 @@ class MollieManagerTest extends TestCase
         $response = $this->mollieManager->createMolliePayment(
             $cart->calculate(),
             $transaction,
-            100
+            100,
+            'ideal',
+            'ideal_ABNANL2A'
         );
 
         Http::fake([
