@@ -36,4 +36,16 @@ return [
     |
     */
     'webhook_url_generator' => \Pixelpillow\LunarMollie\Generators\WebhookUrlGenerator::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Test client adaptor
+    |--------------------------------------------------------------------------
+    |
+    | This is the test client that is used for testing. To fake http requests
+    | you can use the MollieLaravelHttpClientAdapter class from the
+    | "mollie/laravel-mollie" package.
+    |
+    */
+    'test_client_adaptor' => \Mollie\Laravel\MollieLaravelHttpClientAdapter::class,
 ];

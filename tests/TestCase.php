@@ -10,7 +10,6 @@ use Lunar\Facades\Taxes;
 use Lunar\LunarServiceProvider;
 use Lunar\Tests\Stubs\User;
 use Mollie\Api\MollieApiClient;
-use Mollie\Laravel\MollieLaravelHttpClientAdapter;
 use Pixelpillow\LunarMollie\Managers\MollieManager;
 use Pixelpillow\LunarMollie\MolliePaymentsServiceProvider;
 use Pixelpillow\LunarMollie\Tests\Stubs\Lunar\TestTaxDriver;
@@ -52,7 +51,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         activity()->disableLogging();
 
         // Setup Mollie API
-        $this->mollieManager = new MollieManager(new MollieLaravelHttpClientAdapter());
+        $this->mollieManager = new MollieManager();
         $this->mollieApiClient = app(MollieApiClient::class);
 
     }

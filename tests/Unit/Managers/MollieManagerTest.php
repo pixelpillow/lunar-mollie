@@ -9,6 +9,7 @@ use Lunar\Models\Transaction;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund;
+use Mollie\Api\Types\PaymentMethod;
 use Pixelpillow\LunarMollie\Actions\SetPaymentIssuerOnCart;
 use Pixelpillow\LunarMollie\Actions\SetPaymentMethodOnCart;
 use Pixelpillow\LunarMollie\Exceptions\MissingMetadataException;
@@ -47,7 +48,8 @@ class MollieManagerTest extends TestCase
             $transaction,
             100,
             'bancontact',
-            null);
+            null
+        );
     }
 
     public function testIfWrongPaymentMethodAnExceptionIsThrown()
@@ -65,6 +67,26 @@ class MollieManagerTest extends TestCase
             $transaction,
             100,
             'xxxxx', );
+
+    }
+
+    public function testIfPaymentMethodIsIdealAnExceptionIsThrownWhenThereIsNoIssuerDefined()
+    {
+        $this->expectException(MissingMetadataException::class);
+        $this->expectExceptionMessage('Payment issuer is missing.');
+
+        // Create a cart
+        $cart = CartBuilder::build();
+        $transaction = new Transaction();
+        $transaction->id = uniqid();
+
+        $this->mollieManager->createMolliePayment(
+            $cart->calculate(),
+            $transaction,
+            100,
+            PaymentMethod::IDEAL,
+            null
+        );
 
     }
 

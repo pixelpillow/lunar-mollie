@@ -33,15 +33,16 @@ class MollieManager
      */
     protected $client;
 
-    public function __construct($httpClient = null)
+    public function __construct()
     {
+
         $apiKey = Config::get('lunar.mollie.api_key');
 
         if (! $apiKey) {
             throw new \Exception('Mollie API key not set');
         }
 
-        $this->client = $this->getClient($httpClient);
+        $this->client = $this->getClient();
         $this->client->setApiKey($apiKey);
     }
 
@@ -50,8 +51,21 @@ class MollieManager
      *
      * @return MollieApiClient
      */
-    public function getClient($httpClient = null)
+    public function getClient()
     {
+        if (env('APP_ENV') === 'testing') {
+            $httpClient = Config::get('lunar.mollie.test_client_adaptor');
+
+            if (! $httpClient) {
+                throw new InvalidConfigurationException('Mollie test client adaptor not set in config');
+            }
+
+            $httpClient = new $httpClient();
+
+        } else {
+            $httpClient = null;
+        }
+
         return new MollieApiClient($httpClient);
     }
 
@@ -136,7 +150,7 @@ class MollieManager
         $paymentIssuer = App::make(GetPaymentIssuerFromCart::class)($cart);
 
         if ($method === PaymentMethod::IDEAL && ! $paymentIssuer) {
-            throw new MissingMetadataException('When the payment method is ideal, the payment issuer should be set');
+            throw new MissingMetadataException('When the payment method is iDeal, the payment issuer should be set');
         }
 
         return $this->client->payments->create([
@@ -148,7 +162,7 @@ class MollieManager
             'redirectUrl' => $this->getRedirectUrl($cart, $transaction),
             'webhookUrl' => $this->getWebhookUrl($cart, $transaction),
             'method' => App::make(GetPaymentMethodFromCart::class)($cart),
-            'issuer' => $paymentIssuer,
+            'issuer' => $paymentIssuer ?? null,
         ]);
     }
 
@@ -176,7 +190,6 @@ class MollieManager
                 'description' => $notes,
             ]
         );
-
     }
 
     /**
