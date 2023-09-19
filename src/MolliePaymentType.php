@@ -104,7 +104,7 @@ class MolliePaymentType extends AbstractPayment
             $payment = $this->mollie->createMolliePayment(
                 $transaction->order->cart,
                 $transaction,
-                $amount
+                $amount,
             );
         } catch (InvalidRequestException $e) {
             report($e);
