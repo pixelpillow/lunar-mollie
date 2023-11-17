@@ -27,8 +27,8 @@
     }
   ],
   "require": {
-    "php": "^8.1",
-    "lunarphp/lunar": "^0.5",
+    "php": "^8.2",
+    "lunarphp/lunar": "^0.6",
     "mollie/mollie-api-php": "^2.0"
   },
   "require-dev": {
@@ -66,5 +66,10 @@
   "prefer-stable": true,
   "scripts": {
     "test": "vendor/bin/phpunit"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
   }
 }
