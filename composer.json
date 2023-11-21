@@ -28,7 +28,7 @@
   ],
   "require": {
     "php": "^8.2",
-    "lunarphp/lunar": "^0.6",
+    "lunarphp/lunar": "^0.7",
     "mollie/mollie-api-php": "^2.0"
   },
   "require-dev": {
